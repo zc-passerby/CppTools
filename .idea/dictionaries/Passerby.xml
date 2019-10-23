@@ -2,6 +2,7 @@
   <dictionary name="Passerby">
     <words>
       <w>atexit</w>
+      <w>dqueue</w>
       <w>rlock</w>
       <w>zcutils</w>
     </words>
