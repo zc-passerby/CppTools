@@ -1,5 +1,9 @@
-#ifndef __ZC_MUTEX_H__
-#define __ZC_MUTEX_H__
+//
+// Created by Passerby on 2019/10/22.
+//
+
+#ifndef ZCUTILS_MUTEX_H
+#define ZCUTILS_MUTEX_H
 
 #include <pthread.h>
 
@@ -30,7 +34,7 @@ namespace zcUtils {
         }
 
         /*
-         * Obtain ownership of this mutex(writelock).
+         * Obtain ownership of this mutex(write lock).
          * if the mutex is unavailable, block until it becomes available
          *
          * note: if the thread has already own this lock and try to lock it again,
@@ -138,4 +142,4 @@ namespace zcUtils {
 
 };
 
-#endif //__ZC_MUTEX_H__
+#endif // ZCUTILS_MUTEX_H
