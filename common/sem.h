@@ -60,7 +60,7 @@ namespace zcUtils {
                 absTime.tv_nsec -= 1000000000L;
                 absTime.tv_sec++;
             }
-            return (0 == sem_timedwait(&m_stSem_, &abstime));
+            return (0 == sem_timedwait(&m_stSem_, &absTime));
         }
 
         /*

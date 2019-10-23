@@ -12,9 +12,10 @@ namespace zcUtils {
      * This function provides a static entry point for the OS thread creation API.
      * It calls the run() method and collects its exit code.
      */
-    void Thread::begin(void *thread) {
-        Thread *pThread = static_cast<Thread *>thread;
+    void *Thread::begin(void *thread) {
+        Thread *pThread = static_cast<Thread *>(thread);
         pThread->ThreadFunction();
+        return (void *)(0);
     }
 
     // non-blocking test for a stop event.
@@ -88,7 +89,7 @@ namespace zcUtils {
         bool is_failed = false;
         if (0 != thread_id) {
             m_threadHandleMapMutex_.Rlock();
-            ThreadHandleMap::itearator it = m_threadHandleMap_.find(thread_id);
+            ThreadHandleMap::iterator it = m_threadHandleMap_.find(thread_id);
             if (m_threadHandleMap_.end() == it) {
                 m_threadHandleMapMutex_.unlock();
                 return false;
@@ -128,7 +129,7 @@ namespace zcUtils {
         bool is_failed = false;
         if (0 != thread_id) {
             m_threadHandleMapMutex_.Rlock();
-            ThreadHandleMap::itearator it = m_threadHandleMap_.find(thread_id);
+            ThreadHandleMap::iterator it = m_threadHandleMap_.find(thread_id);
             if (m_threadHandleMap_.end() == it) {
                 m_threadHandleMapMutex_.unlock();
                 return false;
