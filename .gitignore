@@ -37,6 +37,9 @@ out
 
 # JetBrain
 # .idea
+# JetBrain忽略配置的远程服务器信息
+.idea/deployment.xml
+.idea/webServers.xml
 
 # cmake build debug
 cmake-build-debug
