@@ -2,10 +2,12 @@
   <dictionary name="Passerby">
     <words>
       <w>atexit</w>
+      <w>coredump</w>
       <w>daemonize</w>
       <w>dqueue</w>
       <w>getopt</w>
       <w>rlock</w>
+      <w>setsid</w>
       <w>setusergroup</w>
       <w>sigexit</w>
       <w>sname</w>

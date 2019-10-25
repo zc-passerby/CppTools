@@ -42,7 +42,7 @@ namespace zcUtils {
         virtual bool addCustomOption(char short_name, const string &long_name,
                                      const string &description, bool value_option);
 
-        const char *nameOf(DAEMON_ERROR_CODES) const;
+        const char *nameOf(DAEMON_ERROR_CODES code) const;
 
         DAEMON_ERROR_CODES getLastError() { return m_nErrorCode_; }
 

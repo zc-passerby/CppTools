@@ -9,7 +9,7 @@
 
 namespace zcUtils {
     SignalHandler *Signal::m_pSignalHandlers_[NSIG] = {SIG_IGNORE_HANDLER};
-    SignalHandler *Signal::m_pSyncSignalHandlers_[NSIG] = {SIG_IGN_HANDLER};
+    SignalHandler *Signal::m_pSyncSignalHandlers_[NSIG] = {SIG_IGNORE_HANDLER};
     const int INFINITE_TIMEOUT = 0;
 
     // Get the single instance.
@@ -103,9 +103,9 @@ namespace zcUtils {
     // Forward the signal event to its handler object.
     void Signal::dispatch(int signal_number) {
         if (m_pSignalHandlers_[signal_number] &&
-            (m_pSignalHandlers_[signal_number] != SIG_DFL_HANDLER) &&
-            (m_pSignalHandlers_[signal_number] != SIG_IGN_HANDLER) &&
-            (m_pSignalHandlers_[signal_number] != SIG_ERR_HANDLER))
+            (m_pSignalHandlers_[signal_number] != SIG_DEFAULT_HANDLER) &&
+            (m_pSignalHandlers_[signal_number] != SIG_IGNORE_HANDLER) &&
+            (m_pSignalHandlers_[signal_number] != SIG_ERROR_HANDLER))
         {
             m_pSignalHandlers_[signal_number]->handleSignal(signal_number);
         }
