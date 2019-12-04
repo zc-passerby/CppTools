@@ -33,13 +33,14 @@ namespace zcUtils {
     Daemon::Daemon(const string &name, const string &description, const string &version, const string &build_time,
                    const string &working_dir, const string &lock_file)
             : Application(name, description, version, build_time) {
-        m_cOptions_.addSwitchOption('h', "help", "Display help information.");
-        m_cOptions_.addSwitchOption('v', "version", "Display version information.");
-        m_cOptions_.addSwitchOption('i', "info", "Display used parameters.");
-        m_cOptions_.addSwitchOption('d', "daemon", "Run with daemon.");
+        m_cOptions_.addSwitchOption('\0', "\0", "带有*参数的指令表示不执行程序，仅打印信息");
+        m_cOptions_.addSwitchOption('h', "help", "显示帮助信息*");
+        m_cOptions_.addSwitchOption('v', "version", "显示版本信息*");
+        m_cOptions_.addSwitchOption('i', "info", "显示所有使用的参数信息*");
+        m_cOptions_.addSwitchOption('d', "daemon", "使用守护进程在后台执行");
 
-        m_cOptions_.addValueOption('u', "user", "Run as this user.");
-        m_cOptions_.addValueOption('g', "group", "Run as this group.");
+//        m_cOptions_.addValueOption('u', "user", "切换到指定用户执行");
+//        m_cOptions_.addValueOption('g', "group", "切换到指定组执行");
 
         m_nErrorCode_ = ERR_SUCCESS_E;
         m_pFileLock_ = new FileLock(lock_file);
@@ -70,35 +71,38 @@ namespace zcUtils {
 
         // TODO(Passerby): setupTracing function is empty now, can add functions later.
         setupTracing();
-        printInfo();
-
-        if (m_pFileLock_->isLocked()) {
-            cout << "Another copy of process is already running" << endl;
-        } else {
-            if (personalize() && setPwd()) {
-                if (!m_cOptions_.getSwitchOption("daemon") || daemonize()) {
-                    setupLog();
-                    setupSignals();
-                    if (m_pFileLock_->lock()) {
-                        if (m_nStarterPid_ != getpid()) // we're running in daemon mode
-                            kill(m_nStarterPid_,
-                                 SIGUSR1); // send notifications to parent about successfully initialisation
-                        ret = true;
-                        if (start(m_cOptions_)) {
-                            time_t start_time = time(NULL);
-                            int signal_num = waitForShutdown();
-                            shutdown();
-                            time_t up_time = time(NULL) - start_time;
-                            int days = up_time / (24 * 3600);
-                            int hours = (up_time % (24 * 3600)) / 3600;
-                            int minutes = (up_time % 3600) / 60;
-                            int seconds = up_time % 60;
-                            cout << getName() << " daemon: shut down with signal " << signal_num << ". Up time:" << days
-                                 << "days" << hours << "hours" << minutes << "minutes" << seconds << "seconds." << endl;
+        if (printInfo())
+            ret = false;
+        else {
+            if (m_pFileLock_->isLocked()) {
+                cout << "Another copy of process is already running" << endl;
+            } else {
+                if (personalize() && setPwd()) {
+                    if (!m_cOptions_.getSwitchOption("daemon") || daemonize()) {
+                        setupLog();
+                        setupSignals();
+                        if (m_pFileLock_->lock()) {
+                            if (m_nStarterPid_ != getpid()) // we're running in daemon mode
+                                kill(m_nStarterPid_,
+                                     SIGUSR1); // send notifications to parent about successfully initialisation
+                            ret = true;
+                            if (start(m_cOptions_)) {
+                                time_t start_time = time(NULL);
+                                int signal_num = waitForShutdown();
+                                shutdown();
+                                time_t up_time = time(NULL) - start_time;
+                                int days = up_time / (24 * 3600);
+                                int hours = (up_time % (24 * 3600)) / 3600;
+                                int minutes = (up_time % 3600) / 60;
+                                int seconds = up_time % 60;
+                                cout << getName() << " daemon: shut down with signal " << signal_num << ". Up time:"
+                                     << days << "days " << hours << "hours " << minutes << "minutes " << seconds
+                                     << "seconds." << endl;
+                            } else
+                                m_nErrorCode_ = ERR_INITIALISE_FAILED_E;
                         } else
-                            m_nErrorCode_ = ERR_INITIALISE_FAILED_E;
-                    } else
-                        m_nErrorCode_ = ERR_CREATE_LOCK_FAILED_E;
+                            m_nErrorCode_ = ERR_CREATE_LOCK_FAILED_E;
+                    }
                 }
             }
         }
@@ -117,6 +121,12 @@ namespace zcUtils {
         return ret;
     }
 
+    bool Daemon::shutdown() {
+        m_pFileLock_->unlock();
+        terminate();
+        return true;
+    }
+
     bool Daemon::printInfo() {
         bool ret = false;
         if (m_cOptions_.getSwitchOption("help")) {
@@ -125,7 +135,7 @@ namespace zcUtils {
         }
 
         if (m_cOptions_.getSwitchOption("version")) {
-            cout << getDescription() << " Version:" << getVersion() << " BuildTime:" << getBuildTime() << endl;
+            cout << getName() << " Version: " << getVersion() << " BuildTime: " << getBuildTime() << endl;
             ret = true;
         }
 
